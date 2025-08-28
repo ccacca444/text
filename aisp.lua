@@ -419,7 +419,11 @@ end
                             end
                             
                             esp.NameLabel.Text = text
-                            esp.NameLabel.Position = Vector2.new(position.X - 25, position.Y + 15)
+                            
+local depthScale = math.clamp(50 / position.Z, 0.5, 2)  
+local xOffset = -25 * depthScale
+local yOffset = 15 * depthScale
+esp.NameLabel.Position = Vector2.new(position.X + xOffset, position.Y + yOffset)
                             esp.NameLabel.Visible = true
                             
                             

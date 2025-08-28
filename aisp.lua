@@ -98,11 +98,9 @@ local TeamCheckToggle = Tab:CreateToggle({
     Callback = function(Value)
         if aimbotScript and aimbotScript.SetTeamCheck then
             aimbotScript.SetTeamCheck(Value)  
-
         end
     end
 })
-
 
 local WallCheckToggle = Tab:CreateToggle({
     Name = "检查墙",
@@ -110,7 +108,6 @@ local WallCheckToggle = Tab:CreateToggle({
     Callback = function(Value)
         if aimbotScript and aimbotScript.SetWallCheck then
             aimbotScript.SetWallCheck(Value)  
-            
         end
     end
 })

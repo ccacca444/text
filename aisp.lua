@@ -336,38 +336,48 @@ local function updateEsp()
                         end
                         
                         
-                        if espSettings.HealthBar then
-                            local scale = 325 / position.Z
-                            local boxWidth, boxHeight = 3 * scale, 5 * scale
-                            local healthPercent = humanoid.Health / humanoid.MaxHealth
-                            
-                            
-                            local bgX = position.X - boxWidth / 2 - espSettings.HealthBarWidth - 2
-                            local bgY = position.Y - boxHeight / 2
-                            esp.HealthBarBackground.Size = Vector2.new(espSettings.HealthBarWidth, boxHeight)
-                            esp.HealthBarBackground.Position = Vector2.new(bgX, bgY)
-                            esp.HealthBarBackground.Visible = true
-                            
-                            
-                            local healthHeight = boxHeight * healthPercent
-                            local fgX = bgX
-                            local fgY = bgY + (boxHeight - healthHeight)
-                            esp.HealthBarForeground.Size = Vector2.new(espSettings.HealthBarWidth, healthHeight)
-                            esp.HealthBarForeground.Position = Vector2.new(fgX, fgY)
-                            esp.HealthBarForeground.Visible = true
-                            
-                            
-                            if healthPercent > 0.7 then
-                                esp.HealthBarForeground.Color = Color3.fromRGB(0, 255, 0)  
-                            elseif healthPercent > 0.3 then
-                                esp.HealthBarForeground.Color = Color3.fromRGB(255, 255, 0) 
-                            else
-                                esp.HealthBarForeground.Color = Color3.fromRGB(255, 0, 0)  
-                            end
-                        else
-                            esp.HealthBarBackground.Visible = false
-                            esp.HealthBarForeground.Visible = false
-                        end
+                        
+if espSettings.HealthBar then
+    local scale = 325 / position.Z
+    local boxWidth, boxHeight = 3 * scale, 5 * scale
+    
+    
+    if humanoid and humanoid.Health > 0 and humanoid.MaxHealth > 0 then
+        local healthPercent = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
+        
+        
+        local bgX = position.X - boxWidth / 2 - espSettings.HealthBarWidth - 2
+        local bgY = position.Y - boxHeight / 2
+        esp.HealthBarBackground.Size = Vector2.new(espSettings.HealthBarWidth, boxHeight)
+        esp.HealthBarBackground.Position = Vector2.new(bgX, bgY)
+        esp.HealthBarBackground.Visible = true
+        
+        
+        local healthHeight = boxHeight * healthPercent
+        local fgX = bgX
+        local fgY = bgY + (boxHeight - healthHeight)
+        esp.HealthBarForeground.Size = Vector2.new(espSettings.HealthBarWidth, healthHeight)
+        esp.HealthBarForeground.Position = Vector2.new(fgX, fgY)
+        esp.HealthBarForeground.Visible = true
+        
+        
+        if healthPercent > 0.7 then
+            esp.HealthBarForeground.Color = Color3.fromRGB(0, 255, 0)  
+        elseif healthPercent > 0.3 then
+            esp.HealthBarForeground.Color = Color3.fromRGB(255, 255, 0)  
+        else
+            esp.HealthBarForeground.Color = Color3.fromRGB(255, 0, 0)  
+        end
+    else
+        
+        esp.HealthBarBackground.Visible = false
+        esp.HealthBarForeground.Visible = false
+    end
+else
+    esp.HealthBarBackground.Visible = false
+    esp.HealthBarForeground.Visible = false
+end
+
                         
                         
                         if espSettings.Tracers then

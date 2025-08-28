@@ -91,23 +91,19 @@ local ButtonDisableAimbotSuccess, ButtonDisableAimbot = pcall(function()
     })
 end)
 
-
+local TeamCheckToggle = Tab:CreateToggle({
+    Name = "队伍检查",
+    CurrentValue = false,
+    Callback = function(Value)
+        if aimbotScript and aimbotScript.SetTeamCheck then
+            
 
 local WallHackToggle = Tab:CreateToggle({
     Name = "检查墙",
     CurrentValue = false,
     Callback = function(Value)
         if aimbotScript and aimbotScript.SetWallHack then
-            aimbotScript:SetWallHack(Value)
-            Rayfield:Notify({
-                Title = "检查墙",
-                Content = Value and "已开启" or "已关闭",
-                Duration = 3,
-                Image = 4483362458
-            })
-        end
-    end
-})
+            
 
 local ColorPicker = Tab:CreateColorPicker({
     Name = "POV颜色",

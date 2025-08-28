@@ -201,7 +201,7 @@ local TransparencySlider = Tab:CreateSlider({
     end
 })
 
-local Tab = Window:CreateTab("ESP功能", "rewind")
+local Tab = Window:CreateTab("esp", "rewind")
 
 --请输入文字。
 local espEnabled = false

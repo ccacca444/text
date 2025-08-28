@@ -3,12 +3,11 @@ local Aimbot = {
     Connection = nil
 }
 
-
 local config = {
     fov = 30,
     maxDistance = 400,
     maxTransparency = 0.1,
-    teamCheck = false,  
+    teamCheck = false,
     wallCheck = true,
     aimPart = "Head"
 }
@@ -38,53 +37,54 @@ local function initializeDrawing()
     end
 end
 
-function Aimbot:SetEnabled(state)
-    self.Enabled = state
+
+function Aimbot.SetEnabled(state)
+    Aimbot.Enabled = state
     if state then
-        self:Start()
+        Aimbot:Start()
     else
-        self:Stop()
+        Aimbot:Stop()
     end
 end
 
-function Aimbot:Toggle()
-    self:SetEnabled(not self.Enabled)
-    return self.Enabled
+function Aimbot.Toggle()
+    Aimbot.SetEnabled(not Aimbot.Enabled)
+    return Aimbot.Enabled
 end
 
 
-function Aimbot:SetTeamCheck(value)
+function Aimbot.SetTeamCheck(value)
     config.teamCheck = value
 end
 
-function Aimbot:GetTeamCheck()
+function Aimbot.GetTeamCheck()
     return config.teamCheck
 end
 
-function Aimbot:SetWallCheck(value)
+function Aimbot.SetWallCheck(value)
     config.wallCheck = value
 end
 
-function Aimbot:GetWallCheck()
+function Aimbot.GetWallCheck()
     return config.wallCheck
 end
 
-function Aimbot:SetFOV(value)
+function Aimbot.SetFOV(value)
     config.fov = value
     if FOVring then
         FOVring.Radius = value
     end
 end
 
-function Aimbot:GetFOV()
+function Aimbot.GetFOV()
     return config.fov
 end
 
-function Aimbot:SetMaxDistance(value)
+function Aimbot.SetMaxDistance(value)
     config.maxDistance = value
 end
 
-function Aimbot:GetMaxDistance()
+function Aimbot.GetMaxDistance()
     return config.maxDistance
 end
 

@@ -21,10 +21,6 @@ local Window = Rayfield:CreateWindow({
 
 local Tab = Window:CreateTab("Aimbot", "rewind")
 
-local aimbotConfig = {
-    teamCheck = false,    
-    wallCheck = true      
-}
 
 local aimbotScript = nil
 local aimbotEnabled = false
@@ -101,14 +97,8 @@ local WallHackToggle = Tab:CreateToggle({
     Name = "检查墙",
     CurrentValue = false,
     Callback = function(Value)
-        if aimbotScript and aimbotScript.SetWallHack then
-            aimbotScript:SetWallHack(Value)
-            Rayfield:Notify({
-                Title = "检查墙",
-                Content = Value and "已开启" or "已关闭",
-                Duration = 3,
-                Image = 4483362458
-            })
+        if aimbotScript and aimbotScript.SetWallCheck then  
+            aimbotScript.SetWallCheck(Value)  
         end
     end
 })

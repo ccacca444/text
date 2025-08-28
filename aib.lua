@@ -1,117 +1,98 @@
 local Aimbot = {
     Enabled = false,
-    Connection = nil
+    Settings = {
+        FOV = 30,
+        MaxDistance = 400,
+        MaxTransparency = 1,
+        TeamCheck = false,
+        WallCheck = true,
+        WallHack = false,
+        AimPart = "Head",
+        
+        POVColor = Color3.fromRGB(255, 0, 0),
+        POVThickness = 4,
+        POVSegments = 36,
+        POVOverlap = 0.05
+    },
+    Connections = {},
+    Target = nil,
+    FOVSegments = {} 
 }
 
-
-local fov = 30
-local maxDistance = 400
-local maxTransparency = 0.1
-local teamCheck = false
-local wallCheck = true
-local aimPart = "Head"
-
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-
-
-local Cam, FOVring
-
-local function initializeDrawing()
-    if not Cam or not Cam.ViewportSize then
-        Cam = workspace:FindFirstChildOfClass("Camera")
-        if not Cam then return end
+local function initDrawings()
+    
+    for _, segment in ipairs(Aimbot.FOVSegments) do
+        if segment then segment:Remove() end
     end
+    Aimbot.FOVSegments = {}
 
-    if not FOVring then
-        FOVring = Drawing.new("Circle")
-        FOVring.Visible = false
-        FOVring.Thickness = 2
-        FOVring.Color = Color3.fromRGB(128, 0, 128)
-        FOVring.Filled = false
-        FOVring.Radius = fov
-        if Cam and Cam.ViewportSize then
-            FOVring.Position = Cam.ViewportSize / 2
-        end
-    end
-end
+    local center = workspace.CurrentCamera.ViewportSize / 2
+    local radius = Aimbot.Settings.FOV
+    local numSegments = Aimbot.Settings.POVSegments  
+    local overlap = Aimbot.Settings.POVOverlap       
 
+    for i = 1, numSegments do
+        local angle1 = (i - 1) * (2 * math.pi / numSegments) - overlap
+        local angle2 = i * (2 * math.pi / numSegments) + overlap
 
-function Aimbot:SetEnabled(state)
-    self.Enabled = state
-    if state then
-        self:Start()
-    else
-        self:Stop()
+        local startPos = Vector2.new(
+            center.X + radius * math.cos(angle1),
+            center.Y + radius * math.sin(angle1)
+        )
+
+        local endPos = Vector2.new(
+            center.X + radius * math.cos(angle2),
+            center.Y + radius * math.sin(angle2)
+        )
+
+        local line = Drawing.new("Line")
+        line.Visible = true
+        line.Thickness = Aimbot.Settings.POVThickness  
+        line.Color = Aimbot.Settings.POVColor          
+        line.Transparency = Aimbot.Settings.MaxTransparency
+        line.From = startPos
+        line.To = endPos
+
+        table.insert(Aimbot.FOVSegments, line)
     end
 end
 
-function Aimbot:Toggle()
-    self:SetEnabled(not self.Enabled)
-    return self.Enabled
-end
-
-function Aimbot:Start()
-    initializeDrawing()
-    if not FOVring then return end
-
-    if self.Connection then
-        self.Connection:Disconnect()
-    end
-
-    self.Connection = RunService.RenderStepped:Connect(function()
-        if not self.Enabled then return end
-        if not Cam then
-            Cam = workspace:FindFirstChildOfClass("Camera")
-            if not Cam then return end
-        end
-
-        updateDrawings()
-        local closest = getClosestPlayerInFOV()
-        if closest and closest.Character and closest.Character:FindFirstChild(aimPart) then
-            lookAt(closest.Character[aimPart].Position)
-        end
-
-        if closest then
-            local part = closest.Character[aimPart]
-            local ePos, isVisible = Cam:WorldToViewportPoint(part.Position)
-            local distance = (Vector2.new(ePos.x, ePos.y) - (Cam.ViewportSize / 2)).Magnitude
-            FOVring.Transparency = calculateTransparency(distance)
-        else
-            FOVring.Transparency = maxTransparency
-        end
-    end)
-
-    FOVring.Visible = true
-end
-
-function Aimbot:Stop()
-    if self.Connection then
-        self.Connection:Disconnect()
-        self.Connection = nil
-    end
-    if FOVring then
-        FOVring.Visible = false
-        FOVring.Transparency = maxTransparency
-    end
-end
-
--- 原有的辅助函数（添加安全检查）
 local function updateDrawings()
-    if FOVring and Cam and Cam.ViewportSize then
-        FOVring.Position = Cam.ViewportSize / 2
+    local center = workspace.CurrentCamera.ViewportSize / 2
+    local radius = Aimbot.Settings.FOV
+    local numSegments = #Aimbot.FOVSegments
+    local overlap = Aimbot.Settings.POVOverlap  
+    for i = 1, numSegments do
+        local angle1 = (i - 1) * (2 * math.pi / numSegments) - overlap
+        local angle2 = i * (2 * math.pi / numSegments) + overlap
+
+        local startPos = Vector2.new(
+            center.X + radius * math.cos(angle1),
+            center.Y + radius * math.sin(angle1)
+        )
+
+        local endPos = Vector2.new(
+            center.X + radius * math.cos(angle2),
+            center.Y + radius * math.sin(angle2)
+        )
+
+        if Aimbot.FOVSegments[i] then
+            Aimbot.FOVSegments[i].From = startPos
+            Aimbot.FOVSegments[i].To = endPos
+        end
     end
 end
+
 
 local function lookAt(target)
-    if not Cam then return end
-    local lookVector = (target - Cam.CFrame.Position).unit
-    local newCFrame = CFrame.new(Cam.CFrame.Position, Cam.CFrame.Position + lookVector)
-    Cam.CFrame = newCFrame
+    if not Aimbot.Enabled then return end
+    local lookVector = (target - workspace.CurrentCamera.CFrame.Position).unit
+    local newCFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, workspace.CurrentCamera.CFrame.Position + lookVector)
+    workspace.CurrentCamera.CFrame = newCFrame
 end
 
 local function calculateTransparency(distance)
-    return (1 - (distance / fov)) * maxTransparency
+    return (1 - (distance / Aimbot.Settings.FOV)) * Aimbot.Settings.MaxTransparency
 end
 
 local function isPlayerAlive(player)
@@ -120,12 +101,17 @@ local function isPlayerAlive(player)
 end
 
 local function isPlayerVisibleThroughWalls(player, trg_part)
-    if not wallCheck then
+    
+    if Aimbot.Settings.WallHack then
+        return true
+    end
+    
+    if not Aimbot.Settings.WallCheck then
         return true
     end
 
-    local localPlayer = Players.LocalPlayer
-    if not localPlayer or not localPlayer.Character then
+    local localPlayerCharacter = game:GetService("Players").LocalPlayer.Character
+    if not localPlayerCharacter then
         return false
     end
 
@@ -134,18 +120,16 @@ local function isPlayerVisibleThroughWalls(player, trg_part)
         return false
     end
 
-    if not Cam then return false end
-
-    local ray = Ray.new(Cam.CFrame.Position, part.Position - Cam.CFrame.Position)
-    local hit, _ = workspace:FindPartOnRayWithIgnoreList(ray, {localPlayer.Character})
+    local ray = Ray.new(workspace.CurrentCamera.CFrame.Position, part.Position - workspace.CurrentCamera.CFrame.Position)
+    local hit, _ = workspace:FindPartOnRayWithIgnoreList(ray, {localPlayerCharacter})
 
     if hit and hit:IsDescendantOf(player.Character) then
         return true
     end
 
-    local direction = (part.Position - Cam.CFrame.Position).unit
-    local nearRay = Ray.new(Cam.CFrame.Position + direction * 2, direction * maxDistance)
-    local nearHit, _ = workspace:FindPartOnRayWithIgnoreList(nearRay, {localPlayer.Character})
+    local direction = (part.Position - workspace.CurrentCamera.CFrame.Position).unit
+    local nearRay = Ray.new(workspace.CurrentCamera.CFrame.Position + direction * 2, direction * Aimbot.Settings.MaxDistance)
+    local nearHit, _ = workspace:FindPartOnRayWithIgnoreList(nearRay, {localPlayerCharacter})
 
     return nearHit and nearHit:IsDescendantOf(player.Character)
 end
@@ -153,23 +137,18 @@ end
 local function getClosestPlayerInFOV()
     local nearest = nil
     local last = math.huge
-    local localPlayer = Players.LocalPlayer
+    local playerMousePos = workspace.CurrentCamera.ViewportSize / 2
+    local localPlayer = game:GetService("Players").LocalPlayer
 
-    if not localPlayer or not localPlayer.Character or not Cam or not Cam.ViewportSize then
-        return nil
-    end
-
-    local playerMousePos = Cam.ViewportSize / 2
-
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= localPlayer and (not teamCheck or player.Team ~= localPlayer.Team) and isPlayerAlive(player) then
+    for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+        if player ~= localPlayer and (not Aimbot.Settings.TeamCheck or player.Team ~= localPlayer.Team) and isPlayerAlive(player) then
             local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
-            local part = player.Character and player.Character:FindFirstChild(aimPart)
+            local part = player.Character and player.Character:FindFirstChild(Aimbot.Settings.AimPart)
             if humanoid and part then
-                local ePos, isVisible = Cam:WorldToViewportPoint(part.Position)
+                local ePos, isVisible = workspace.CurrentCamera:WorldToViewportPoint(part.Position)
                 local distance = (Vector2.new(ePos.x, ePos.y) - playerMousePos).Magnitude
 
-                if distance < last and isVisible and distance < fov and distance < maxDistance and isPlayerVisibleThroughWalls(player, aimPart) then
+                if distance < last and isVisible and distance < Aimbot.Settings.FOV and distance < Aimbot.Settings.MaxDistance and isPlayerVisibleThroughWalls(player, Aimbot.Settings.AimPart) then
                     last = distance
                     nearest = player
                 end
@@ -180,9 +159,112 @@ local function getClosestPlayerInFOV()
     return nearest
 end
 
--- 初始状态：关闭
-if FOVring then
-    FOVring.Visible = false
+local function mainLoop()
+    if not Aimbot.Enabled then return end
+    
+    updateDrawings()
+    Aimbot.Target = getClosestPlayerInFOV()
+
+    if Aimbot.Target and Aimbot.Target.Character:FindFirstChild(Aimbot.Settings.AimPart) then
+        lookAt(Aimbot.Target.Character[Aimbot.Settings.AimPart].Position)
+        
+        local part = Aimbot.Target.Character[Aimbot.Settings.AimPart]
+        local ePos = workspace.CurrentCamera:WorldToViewportPoint(part.Position)
+        local distance = (Vector2.new(ePos.x, ePos.y) - (workspace.CurrentCamera.ViewportSize / 2)).Magnitude
+        local transparency = calculateTransparency(distance)
+        
+        
+        for _, segment in ipairs(Aimbot.FOVSegments) do
+            segment.Transparency = transparency
+        end
+    else
+        
+        for _, segment in ipairs(Aimbot.FOVSegments) do
+            segment.Transparency = Aimbot.Settings.MaxTransparency
+        end
+    end
 end
 
-return Aimbot
+function Aimbot:Init()
+    if self.Enabled then return end
+    
+    initDrawings()
+    
+    table.insert(self.Connections, game:GetService("RunService").RenderStepped:Connect(mainLoop))
+    
+    self.Enabled = true
+    print("Aimbot已启用")
+end
+
+function Aimbot:Disable()
+    if not self.Enabled then return end
+    
+    for _, conn in ipairs(self.Connections) do
+        conn:Disconnect()
+    end
+    self.Connections = {}
+    
+    
+    for _, segment in ipairs(self.FOVSegments) do
+        if segment then
+            segment:Remove()
+        end
+    end
+    self.FOVSegments = {}
+    
+    self.Enabled = false
+    self.Target = nil
+    print("Aimbot已禁用")
+end
+
+function Aimbot:Configure(settings)
+    for k, v in pairs(settings) do
+        if self.Settings[k] ~= nil then
+            self.Settings[k] = v
+        end
+    end
+    
+    
+    if self.Enabled then
+        initDrawings()
+    end
+end
+
+function Aimbot:GetPOVConfig()
+    return {
+        FOV = self.Settings.FOV,
+        Color = self.Settings.POVColor,
+        Thickness = self.Settings.POVThickness,
+        Segments = self.Settings.POVSegments,
+        Overlap = self.Settings.POVOverlap,
+        Transparency = self.Settings.MaxTransparency
+    }
+end
+
+
+function Aimbot:SetPOVConfig(config)
+    if config.FOV then self.Settings.FOV = config.FOV end
+    if config.Color then self.Settings.POVColor = config.Color end
+    if config.Thickness then self.Settings.POVThickness = config.Thickness end
+    if config.Segments then self.Settings.POVSegments = config.Segments end
+    if config.Overlap then self.Settings.POVOverlap = config.Overlap end
+    if config.Transparency then self.Settings.MaxTransparency = config.Transparency end
+    
+    
+    if self.Enabled then
+        initDrawings()
+    end
+    return true
+end
+
+function Aimbot:SetWallHack(enabled)
+    self.Settings.WallHack = enabled
+    print("你妈死了没有: " .. (enabled and "死了" or "没死"))
+    return true
+end
+
+function Aimbot:GetWallHack()
+    return self.Settings.WallHack
+end
+
+return Aimbot 

@@ -3,6 +3,7 @@ local Aimbot = {
     Connection = nil
 }
 
+
 local config = {
     fov = 30,
     maxDistance = 400,
@@ -14,12 +15,11 @@ local config = {
 
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
-
-
-local Cam, FOVring
+local Cam = workspace:FindFirstChildOfClass("Camera")
+local FOVring = nil
 
 local function initializeDrawing()
-    if not Cam or not Cam.ViewportSize then
+    if not Cam then
         Cam = workspace:FindFirstChildOfClass("Camera")
         if not Cam then return end
     end
@@ -37,13 +37,13 @@ local function initializeDrawing()
     end
 end
 
-
+-- 公开的接口函数
 function Aimbot.SetEnabled(state)
     Aimbot.Enabled = state
     if state then
-        Aimbot:Start()
+        Aimbot.Start()
     else
-        Aimbot:Stop()
+        Aimbot.Stop()
     end
 end
 
@@ -52,7 +52,7 @@ function Aimbot.Toggle()
     return Aimbot.Enabled
 end
 
-
+-- 配置设置接口
 function Aimbot.SetTeamCheck(value)
     config.teamCheck = value
 end
@@ -80,24 +80,16 @@ function Aimbot.GetFOV()
     return config.fov
 end
 
-function Aimbot.SetMaxDistance(value)
-    config.maxDistance = value
-end
-
-function Aimbot.GetMaxDistance()
-    return config.maxDistance
-end
-
-function Aimbot:Start()
+function Aimbot.Start()
     initializeDrawing()
     if not FOVring then return end
 
-    if self.Connection then
-        self.Connection:Disconnect()
+    if Aimbot.Connection then
+        Aimbot.Connection:Disconnect()
     end
 
-    self.Connection = RunService.RenderStepped:Connect(function()
-        if not self.Enabled then return end
+    Aimbot.Connection = RunService.RenderStepped:Connect(function()
+        if not Aimbot.Enabled then return end
         if not Cam then
             Cam = workspace:FindFirstChildOfClass("Camera")
             if not Cam then return end
@@ -122,10 +114,10 @@ function Aimbot:Start()
     FOVring.Visible = true
 end
 
-function Aimbot:Stop()
-    if self.Connection then
-        self.Connection:Disconnect()
-        self.Connection = nil
+function Aimbot.Stop()
+    if Aimbot.Connection then
+        Aimbot.Connection:Disconnect()
+        Aimbot.Connection = nil
     end
     if FOVring then
         FOVring.Visible = false
@@ -217,7 +209,7 @@ local function getClosestPlayerInFOV()
     return nearest
 end
 
--- 初始状态：关
+-- 初始状态
 if FOVring then
     FOVring.Visible = false
 end

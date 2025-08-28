@@ -535,7 +535,7 @@ local ESPToggle = Tab:CreateToggle({
 
 
 local HealthBarToggle = Tab:CreateToggle({
-    Name = "显示血条",
+    Name = "显示血条(99%bug)",
     CurrentValue = espSettings.HealthBar,
     Callback = function(Value)
         espSettings.HealthBar = Value

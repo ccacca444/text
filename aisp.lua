@@ -96,10 +96,10 @@ local TeamCheckToggle = Tab:CreateToggle({
     CurrentValue = false,
     Callback = function(Value)
         if aimbotScript and aimbotScript.SetTeamCheck then
-            aimbotScript:SetTeamCheck(Value)
+            aimbotScript.SetTeamCheck(Value)  
             Rayfield:Notify({
                 Title = "队伍检查",
-                Content = Value and "开启" or "关闭",
+                Content = Value and "已开启" or "已关闭",
                 Duration = 3,
                 Image = 4483362458
             })
@@ -107,15 +107,15 @@ local TeamCheckToggle = Tab:CreateToggle({
     end
 })
 
-local WallHackToggle = Tab:CreateToggle({
+local WallCheckToggle = Tab:CreateToggle({
     Name = "检查墙",
-    CurrentValue = false,
+    CurrentValue = true,
     Callback = function(Value)
-        if aimbotScript and aimbotScript.SetWallHack then
-            aimbotScript:SetWallHack(Value)
+        if aimbotScript and aimbotScript.SetWallCheck then
+            aimbotScript.SetWallCheck(Value)  
             Rayfield:Notify({
                 Title = "检查墙",
-                Content = Value and "开启" or "关闭",
+                Content = Value and "已开启"或"已关闭",
                 Duration = 3,
                 Image = 4483362458
             })

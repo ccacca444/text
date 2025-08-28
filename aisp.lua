@@ -97,16 +97,6 @@ local ButtonDisableAimbotSuccess, ButtonDisableAimbot = pcall(function()
 end)
 
 
-local TeamCheckToggle = Tab:CreateToggle({
-    Name = "队伍检查",
-    CurrentValue = false,
-    Callback = function(Value)
-        if aimbotScript and aimbotScript.SetTeamCheck then
-            aimbotScript.SetTeamCheck(Value)  
-        end
-    end
-})
-
 local WallCheckToggle = Tab:CreateToggle({
     Name = "检查墙",
     CurrentValue = true,

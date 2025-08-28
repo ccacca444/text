@@ -573,6 +573,15 @@ local TracersToggle = Tab:CreateToggle({
     end
 })
 
+local TracerOriginDropdown = Tab:CreateDropdown({
+    Name = "追踪线起点",
+    Options = {"Bottom", "Top", "Mouse"},
+    CurrentOption = espSettings.TracerOrigin,
+    Callback = function(Option)
+        espSettings.TracerOrigin = Option
+    end
+})
+
 local NamesToggle = Tab:CreateToggle({
     Name = "显示名称",
     CurrentValue = espSettings.Names,
@@ -600,7 +609,7 @@ local MaxDistanceSlider = Tab:CreateSlider({
     end
 })
 
--- 新增血条宽度滑块
+
 local HealthBarWidthSlider = Tab:CreateSlider({
     Name = "血条宽度",
     Range = {1, 10},
@@ -659,14 +668,6 @@ local BoxThicknessSlider = Tab:CreateSlider({
     end
 })
 
-local TracerOriginDropdown = Tab:CreateDropdown({
-    Name = "追踪线起点",
-    Options = {"Bottom", "Top", "Mouse"},
-    CurrentOption = espSettings.TracerOrigin,
-    Callback = function(Option)
-        espSettings.TracerOrigin = Option
-    end
-})
 
 Tab:CreateButton({
     Name = "强制清除所有ESP",

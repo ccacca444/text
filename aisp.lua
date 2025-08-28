@@ -92,7 +92,6 @@ local ButtonDisableAimbotSuccess, ButtonDisableAimbot = pcall(function()
     })
 end)
 
-
 local WallHackToggle = Tab:CreateToggle({
     Name = "检查墙",
     CurrentValue = false,

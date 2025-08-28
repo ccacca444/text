@@ -21,6 +21,11 @@ local Window = Rayfield:CreateWindow({
 
 local Tab = Window:CreateTab("Aimbot", "rewind")
 
+local aimbotConfig = {
+    teamCheck = false,    
+    wallCheck = true      
+}
+
 local aimbotScript = nil
 local aimbotEnabled = false
 

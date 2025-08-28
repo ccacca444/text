@@ -91,6 +91,7 @@ local ButtonDisableAimbotSuccess, ButtonDisableAimbot = pcall(function()
     })
 end)
 
+
 local TeamCheckToggle = Tab:CreateToggle({
     Name = "队伍检查",
     CurrentValue = false,
@@ -107,6 +108,7 @@ local TeamCheckToggle = Tab:CreateToggle({
     end
 })
 
+
 local WallCheckToggle = Tab:CreateToggle({
     Name = "检查墙",
     CurrentValue = true,
@@ -115,7 +117,7 @@ local WallCheckToggle = Tab:CreateToggle({
             aimbotScript.SetWallCheck(Value)  
             Rayfield:Notify({
                 Title = "检查墙",
-                Content = Value and "已开启"或"已关闭",
+                Content = Value and "已开启" or "已关闭",
                 Duration = 3,
                 Image = 4483362458
             })

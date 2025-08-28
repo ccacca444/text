@@ -659,6 +659,14 @@ local BoxThicknessSlider = Tab:CreateSlider({
     end
 })
 
+local TracerOriginDropdown = Tab:CreateDropdown({
+    Name = "追踪线起点",
+    Options = {"Bottom", "Top", "Mouse"},
+    CurrentOption = espSettings.TracerOrigin,
+    Callback = function(Option)
+        espSettings.TracerOrigin = Option
+    end
+})
 
 Tab:CreateButton({
     Name = "强制清除所有ESP",

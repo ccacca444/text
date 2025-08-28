@@ -96,13 +96,32 @@ local TeamCheckToggle = Tab:CreateToggle({
     CurrentValue = false,
     Callback = function(Value)
         if aimbotScript and aimbotScript.SetTeamCheck then
-            
+            aimbotScript:SetTeamCheck(Value)
+            Rayfield:Notify({
+                Title = "队伍检查",
+                Content = Value and "开启" or "关闭",
+                Duration = 3,
+                Image = 4483362458
+            })
+        end
+    end
+})
 
 local WallHackToggle = Tab:CreateToggle({
     Name = "检查墙",
     CurrentValue = false,
     Callback = function(Value)
         if aimbotScript and aimbotScript.SetWallHack then
+            aimbotScript:SetWallHack(Value)
+            Rayfield:Notify({
+                Title = "检查墙",
+                Content = Value and "开启" or "关闭",
+                Duration = 3,
+                Image = 4483362458
+            })
+        end
+    end
+})
             
 
 local ColorPicker = Tab:CreateColorPicker({

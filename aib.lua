@@ -13,15 +13,28 @@ local aimPart = "Head"
 
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
-local Cam = game.Workspace.CurrentCamera
 
-local FOVring = Drawing.new("Circle")
-FOVring.Visible = true
-FOVring.Thickness = 2
-FOVring.Color = Color3.fromRGB(128, 0, 128)
-FOVring.Filled = false
-FOVring.Radius = fov
-FOVring.Position = Cam.ViewportSize / 2
+-- 延迟获取Camera和创建FOVring
+local Cam, FOVring
+
+local function initializeDrawing()
+    if not Cam or not Cam.ViewportSize then
+        Cam = workspace:FindFirstChildOfClass("Camera")
+        if not Cam then return end
+    end
+    
+    if not FOVring then
+        FOVring = Drawing.new("Circle")
+        FOVring.Visible = false
+        FOVring.Thickness = 2
+        FOVring.Color = Color3.fromRGB(128, 0, 128)
+        FOVring.Filled = false
+        FOVring.Radius = fov
+        if Cam and Cam.ViewportSize then
+            FOVring.Position = Cam.ViewportSize / 2
+        end
+    end
+end
 
 -- 公开的接口函数
 function Aimbot:SetEnabled(state)
@@ -39,16 +52,23 @@ function Aimbot:Toggle()
 end
 
 function Aimbot:Start()
+    initializeDrawing()
+    if not FOVring then return end
+    
     if self.Connection then
         self.Connection:Disconnect()
     end
     
     self.Connection = RunService.RenderStepped:Connect(function()
         if not self.Enabled then return end
+        if not Cam then
+            Cam = workspace:FindFirstChildOfClass("Camera")
+            if not Cam then return end
+        end
         
         updateDrawings()
         local closest = getClosestPlayerInFOV()
-        if closest and closest.Character:FindFirstChild(aimPart) then
+        if closest and closest.Character and closest.Character:FindFirstChild(aimPart) then
             lookAt(closest.Character[aimPart].Position)
         end
         
@@ -70,16 +90,21 @@ function Aimbot:Stop()
         self.Connection:Disconnect()
         self.Connection = nil
     end
-    FOVring.Visible = false
-    FOVring.Transparency = maxTransparency
+    if FOVring then
+        FOVring.Visible = false
+        FOVring.Transparency = maxTransparency
+    end
 end
 
--- 原有的辅助函数（保持不变）
+-- 原有的辅助函数（添加安全检查）
 local function updateDrawings()
-    FOVring.Position = Cam.ViewportSize / 2
+    if FOVring and Cam and Cam.ViewportSize then
+        FOVring.Position = Cam.ViewportSize / 2
+    end
 end
 
 local function lookAt(target)
+    if not Cam then return end
     local lookVector = (target - Cam.CFrame.Position).unit
     local newCFrame = CFrame.new(Cam.CFrame.Position, Cam.CFrame.Position + lookVector)
     Cam.CFrame = newCFrame
@@ -99,8 +124,8 @@ local function isPlayerVisibleThroughWalls(player, trg_part)
         return true
     end
 
-    local localPlayerCharacter = Players.LocalPlayer.Character
-    if not localPlayerCharacter then
+    local localPlayer = Players.LocalPlayer
+    if not localPlayer or not localPlayer.Character then
         return false
     end
 
@@ -109,8 +134,10 @@ local function isPlayerVisibleThroughWalls(player, trg_part)
         return false
     end
 
+    if not Cam then return false end
+
     local ray = Ray.new(Cam.CFrame.Position, part.Position - Cam.CFrame.Position)
-    local hit, _ = workspace:FindPartOnRayWithIgnoreList(ray, {localPlayerCharacter})
+    local hit, _ = workspace:FindPartOnRayWithIgnoreList(ray, {localPlayer.Character})
 
     if hit and hit:IsDescendantOf(player.Character) then
         return true
@@ -118,7 +145,7 @@ local function isPlayerVisibleThroughWalls(player, trg_part)
 
     local direction = (part.Position - Cam.CFrame.Position).unit
     local nearRay = Ray.new(Cam.CFrame.Position + direction * 2, direction * maxDistance)
-    local nearHit, _ = workspace:FindPartOnRayWithIgnoreList(nearRay, {localPlayerCharacter})
+    local nearHit, _ = workspace:FindPartOnRayWithIgnoreList(nearRay, {localPlayer.Character})
 
     return nearHit and nearHit:IsDescendantOf(player.Character)
 end
@@ -126,8 +153,13 @@ end
 local function getClosestPlayerInFOV()
     local nearest = nil
     local last = math.huge
-    local playerMousePos = Cam.ViewportSize / 2
     local localPlayer = Players.LocalPlayer
+    
+    if not localPlayer or not localPlayer.Character or not Cam or not Cam.ViewportSize then
+        return nil
+    end
+    
+    local playerMousePos = Cam.ViewportSize / 2
 
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= localPlayer and (not teamCheck or player.Team ~= localPlayer.Team) and isPlayerAlive(player) then
@@ -149,6 +181,8 @@ local function getClosestPlayerInFOV()
 end
 
 -- 初始状态：关闭
-FOVring.Visible = false
+if FOVring then
+    FOVring.Visible = false
+end
 
 return Aimbot

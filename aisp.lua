@@ -111,7 +111,6 @@ local WallCheckToggle = Tab:CreateToggle({
         end
     end
 })
-            
 
 local ColorPicker = Tab:CreateColorPicker({
     Name = "POV颜色",

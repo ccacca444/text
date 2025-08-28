@@ -380,7 +380,7 @@ end
                         
                         
                         if espSettings.Tracers then
-                            local origin = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y)
+                            local origin 
                             
                             if espSettings.TracerOrigin == "Top" then
                                 origin = Vector2.new(camera.ViewportSize.X / 2, 0)

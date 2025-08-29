@@ -383,28 +383,36 @@ end
     local origin
     
     
+    local screenCenter = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+    
     if espSettings.TracerOrigin == "Top" then
-        origin = Vector2.new(camera.ViewportSize.X / 2, 36)  
+        origin = Vector2.new(screenCenter.X, 0)  
     elseif espSettings.TracerOrigin == "Mouse" then
         local mouse = localPlayer:GetMouse()
         origin = Vector2.new(mouse.X, mouse.Y)  
     else  
-        origin = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y)  
+        origin = Vector2.new(screenCenter.X, camera.ViewportSize.Y)  
     end
 
-    esp.Tracer.From = origin
-    esp.Tracer.To = Vector2.new(position.X, position.Y)
-    esp.Tracer.Visible = true
-                            
-                            
-                            if espSettings.TeamColor and player.Team then
-                                esp.Tracer.Color = player.Team.TeamColor.Color
-                            else
-                                esp.Tracer.Color = espSettings.BoxColor
-                            end
-                        else
-                            esp.Tracer.Visible = false
-                        end
+    
+    if esp.Tracer then
+        esp.Tracer.From = origin
+        esp.Tracer.To = Vector2.new(position.X, position.Y)
+        esp.Tracer.Visible = true
+        
+        
+        if espSettings.TeamColor and player.Team then
+            esp.Tracer.Color = player.Team.TeamColor.Color
+        else
+            esp.Tracer.Color = espSettings.BoxColor
+        end
+    end
+else
+    if esp.Tracer then
+        esp.Tracer.Visible = false
+    end
+end
+              
                         
                         
                         if espSettings.Names or espSettings.Distance then

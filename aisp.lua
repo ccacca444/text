@@ -384,7 +384,7 @@ end
     
     
     if espSettings.TracerOrigin == "Top" then
-        origin = Vector2.new(camera.ViewportSize.X / 2, 0)  
+        origin = Vector2.new(camera.ViewportSize.X / 2, 36)  
     elseif espSettings.TracerOrigin == "Mouse" then
         local mouse = localPlayer:GetMouse()
         origin = Vector2.new(mouse.X, mouse.Y)  

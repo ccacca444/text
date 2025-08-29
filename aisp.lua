@@ -649,29 +649,6 @@ local HealthColorPicker = Tab:CreateColorPicker({
     end
 })
 
-local TextSizeSlider = Tab:CreateSlider({
-    Name = "文本大小",
-    Range = {8, 24},
-    Increment = 1,
-    Suffix = "px",
-    CurrentValue = espSettings.TextSize,
-    Callback = function(Value)
-        espSettings.TextSize = Value
-    end
-})
-
-local BoxThicknessSlider = Tab:CreateSlider({
-    Name = "线条粗细",
-    Range = {1, 5},
-    Increment = 1,
-    Suffix = "px",
-    CurrentValue = espSettings.BoxThickness,
-    Callback = function(Value)
-        espSettings.BoxThickness = Value
-    end
-})
-
-
 Tab:CreateButton({
     Name = "强制清除所有ESP",
     Callback = function()

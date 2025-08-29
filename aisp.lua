@@ -598,11 +598,11 @@ local TracersToggle = Tab:CreateToggle({
         espSettings.Tracers = Value
     end
 })
-
+-- 这里有bug你选头之后就改不回来了
 local TracerOriginDropdown = Tab:CreateDropdown({
     Name = "追踪线起点",
-    Options = {"头", "顶", "鼠标"},  
-    CurrentOption = "头",  
+    Options = {"头", "顶" },  
+    CurrentOption = "顶",  
     Callback = function(Option)
 
         if Option == "顶" then

@@ -226,7 +226,7 @@ local espSettings = {
     BoxThickness = 1,
     HealthBarWidth = 2,  
     HealthBarHeight = 20, 
-    TracerOrigin = "Bottom" -- Bottom
+    TracerOrigin = "Mouse" 
 }
 
 local function createEsp(player)

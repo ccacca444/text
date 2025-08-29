@@ -582,6 +582,14 @@ local TracerOriginDropdown = Tab:CreateDropdown({
     CurrentOption = espSettings.TracerOrigin,
     Callback = function(Option)
         espSettings.TracerOrigin = Option
+        
+        
+        if espEnabled then
+            clearEsp()
+            initEsp()
+        end
+        
+        print("追踪线起点已切换至:", Option)
     end
 })
 

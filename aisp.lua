@@ -381,25 +381,42 @@ end
                         
                         if espSettings.Tracers then
     local origin
-    
-    
     local screenCenter = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
-    
+
     if espSettings.TracerOrigin == "Top" then
-        origin = Vector2.new(screenCenter.X, 0)  
+        origin = Vector2.new(screenCenter.X, 0)
     elseif espSettings.TracerOrigin == "Mouse" then
-        local mouse = localPlayer:GetMouse()
-        origin = Vector2.new(mouse.X, mouse.Y)  
+        local success, mousePos = pcall(function()
+            return localPlayer:GetMouse()
+        end)
+        if success and mousePos then
+            origin = Vector2.new(mousePos.X, mousePos.Y)
+        else
+            origin = Vector2.new(screenCenter.X, screenCenter.Y)
+        end
     else  
-        origin = Vector2.new(screenCenter.X, camera.ViewportSize.Y)  
+        local localCharacter = localPlayer.Character
+        if localCharacter then
+            local head = localCharacter:FindFirstChild("Head")
+            if head then
+                local headPosition, headOnScreen = camera:WorldToViewportPoint(head.Position)
+                if headOnScreen then
+                    origin = Vector2.new(headPosition.X, headPosition.Y)
+                else
+                    origin = Vector2.new(screenCenter.X, screenCenter.Y)
+                end
+            else
+                origin = Vector2.new(screenCenter.X, camera.ViewportSize.Y)
+            end
+        else
+            origin = Vector2.new(screenCenter.X, camera.ViewportSize.Y)
+        end
     end
 
-    
     if esp.Tracer then
         esp.Tracer.From = origin
         esp.Tracer.To = Vector2.new(position.X, position.Y)
         esp.Tracer.Visible = true
-        
         
         if espSettings.TeamColor and player.Team then
             esp.Tracer.Color = player.Team.TeamColor.Color
@@ -411,9 +428,7 @@ else
     if esp.Tracer then
         esp.Tracer.Visible = false
     end
-end
-              
-                        
+end                  
                         
                         if espSettings.Names or espSettings.Distance then
                             local text = ""
@@ -586,20 +601,26 @@ local TracersToggle = Tab:CreateToggle({
 
 local TracerOriginDropdown = Tab:CreateDropdown({
     Name = "追踪线起点",
-    Options = {"Bottom", "Top", "Mouse"},
-    CurrentOption = espSettings.TracerOrigin,
+    Options = {"头", "顶", "鼠标"},  
+    CurrentOption = "头",  
     Callback = function(Option)
-        
-        if Option == "Top" then
+
+        if Option == "顶" then
             espSettings.TracerOrigin = "Top"
-        elseif Option == "Mouse" then
+        elseif Option == "鼠标" then
             espSettings.TracerOrigin = "Mouse"
-        else
-            espSettings.TracerOrigin = "Bottom"
+        else  
+            espSettings.TracerOrigin = "Bottom"  
         end
         
         
-        print("追踪线起点设置为:", espSettings.TracerOrigin)
+        for player, esp in pairs(espObjects) do
+            if esp.Tracer then
+                esp.Tracer.Visible = false
+            end
+        end
+        
+        updateEsp()
     end
 })
 

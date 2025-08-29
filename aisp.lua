@@ -581,8 +581,17 @@ local TracerOriginDropdown = Tab:CreateDropdown({
     Options = {"Bottom", "Top", "Mouse"},
     CurrentOption = espSettings.TracerOrigin,
     Callback = function(Option)
-        espSettings.TracerOrigin = Option
-        print("追踪线起点已切换至:", Option)
+        
+        if Option == "Top" then
+            espSettings.TracerOrigin = "Top"
+        elseif Option == "Mouse" then
+            espSettings.TracerOrigin = "Mouse"
+        else
+            espSettings.TracerOrigin = "Bottom"
+        end
+        
+        
+        print("追踪线起点设置为:", espSettings.TracerOrigin)
     end
 })
 

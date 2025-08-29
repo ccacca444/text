@@ -12,7 +12,7 @@ local Window = Rayfield:CreateWindow({
     DisableRayfieldPrompts = false,
     DisableBuildWarnings = false,
     ConfigurationSaving = {
-        Enabled = falsp,
+        Enabled = false,
         FolderName = nil,
         FileName = "Big Hub"
     }

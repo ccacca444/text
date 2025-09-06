@@ -1,0 +1,148 @@
+
+local RaySilentAim = {
+    Enabled = false,
+    TargetPart = "Head",
+    FOV = 60,
+    MaxDistance = 1000,
+    TeamCheck = true,
+    VisibilityCheck = true  
+}
+
+function RaySilentAim:IsTargetVisible(target)
+    local localPlayer = game:GetService("Players").LocalPlayer
+    if not localPlayer or not localPlayer.Character then return false end
+    
+    local localChar = localPlayer.Character
+    local targetChar = target.Character
+    if not targetChar then return false end
+    
+    local camera = workspace.CurrentCamera
+    if not camera then return false end
+    
+    local targetPart = targetChar:FindFirstChild(self.TargetPart)
+    if not targetPart then return false end
+    
+    
+    local raycastParams = RaycastParams.new()
+    raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+    raycastParams.FilterDescendantsInstances = {localChar, targetChar}
+    raycastParams.IgnoreWater = true
+    
+    
+    local origin = camera.CFrame.Position
+    local direction = (targetPart.Position - origin)
+    local ray = Ray.new(origin, direction.Unit * direction.Magnitude)
+    
+    
+    local rayResult = workspace:Raycast(ray.Origin, ray.Direction, raycastParams)
+    
+    
+    if not rayResult then
+        return true
+    end
+    
+    
+    return rayResult.Instance:IsDescendantOf(targetChar)
+end
+
+
+function RaySilentAim:FindClosestVisiblePlayer()
+    local localPlayer = game:GetService("Players").LocalPlayer
+    if not localPlayer then return nil end
+    
+    local localChar = localPlayer.Character
+    if not localChar then return nil end
+    
+    local camera = workspace.CurrentCamera
+    if not camera then return nil end
+    
+    local cameraPos = camera.CFrame.Position
+    local cameraDir = camera.CFrame.LookVector
+    
+    local closestPlayer = nil
+    local closestDistance = math.huge
+    
+    for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+        if player ~= localPlayer and player.Character then
+            local char = player.Character
+            local humanoid = char:FindFirstChildOfClass("Humanoid")
+            local targetPart = char:FindFirstChild(self.TargetPart)
+            
+            -- 基础条件检查。
+            if humanoid and humanoid.Health > 0 and targetPart then
+                -- 队伍检查
+                if self.TeamCheck and player.Team and localPlayer.Team and player.Team == localPlayer.Team then
+                    continue
+                end
+                
+                -- 距离检查
+                local distance = (targetPart.Position - cameraPos).Magnitude
+                if distance > self.MaxDistance then
+                    continue
+                end
+                
+                -- FOV检查
+                local dirToTarget = (targetPart.Position - cameraPos).Unit
+                local dotProduct = cameraDir:Dot(dirToTarget)
+                local angle = math.acos(math.clamp(dotProduct, -1, 1))
+                local fovRad = math.rad(self.FOV)
+                
+                if angle <= fovRad and distance < closestDistance then
+                    -- 可见性检查（如果启用）
+                    if self.VisibilityCheck then
+                        if self:IsTargetVisible(player) then
+                            closestDistance = distance
+                            closestPlayer = player
+                        end
+                    else
+                        closestDistance = distance
+                        closestPlayer = player
+                    end
+                end
+            end
+        end
+    end
+    
+    return closestPlayer
+end
+
+-- 预测移动目标
+function RaySilentAim:PredictTargetPosition(target, bulletSpeed)
+    local targetChar = target.Character
+    if not targetChar then return nil end
+    
+    local targetPart = targetChar:FindFirstChild(self.TargetPart)
+    if not targetPart then return nil end
+    
+    local localChar = game:GetService("Players").LocalPlayer.Character
+    if not localChar then return targetPart.Position end
+    
+    local head = localChar:FindFirstChild("Head")
+    if not head then return targetPart.Position end
+    
+    -- 计算子弹飞行时间
+    local distance = (targetPart.Position - head.Position).Magnitude
+    local timeToHit = distance / bulletSpeed
+    
+    -- 获取目标速度（如果有的话）
+    local velocity = Vector3.new(0, 0, 0)
+    if targetPart:IsA("BasePart") then
+        velocity = targetPart.Velocity
+    end
+    
+    -- 预测位置 = 当前位置 + 速度 × 时间
+    return targetPart.Position + (velocity * timeToHit)
+end
+
+-- 查找射击事件（保持不变）
+function RaySilentAim:FindShootEvent()
+    local events = {
+        "Shoot", "Fire", "WeaponFire", "RemoteEvent", 
+        "Replicate", "Damage", "Hit", "WeaponRemote"
+    }
+    
+    for _, name in ipairs(events) do
+        local event = game:GetService("ReplicatedStorage"):FindFirstChild(name)
+        if event and event:IsA("RemoteEvent") then
+            return event
+    

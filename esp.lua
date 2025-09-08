@@ -10,7 +10,7 @@ local Toggles = Library.Toggles
 
 
 local Window = Library:CreateWindow({
-    Title = 'ESPBYCCA',
+    Title = 'bycca',
     Center = true,
     AutoShow = true,
 })
@@ -21,7 +21,7 @@ local Window = Library:CreateWindow({
 }
 
 
-
+-- ESP变量和函数。
 local espEnabled = false
 local espObjects = {}
 local players = game:GetService("Players")
@@ -74,13 +74,13 @@ local function createEsp(player)
     esp.NameLabel.Outline = true
     esp.NameLabel.Text = player.Name
     
-  
+    -- 血条背景
     esp.HealthBarBackground.Visible = false
     esp.HealthBarBackground.Color = Color3.fromRGB(50, 50, 50)
     esp.HealthBarBackground.Filled = true
     esp.HealthBarBackground.Thickness = 1
     
-   
+    -- 血条前景
     esp.HealthBarForeground.Visible = false
     esp.HealthBarForeground.Color = espSettings.HealthColor
     esp.HealthBarForeground.Filled = true
@@ -363,7 +363,7 @@ EspSettingsGroup:AddToggle('ESPNames', {
     Visible = true, 
     Risky = false,
     Callback = function(Value)
-        espSettings.TextSize = Value  
+        espSettings.Names = Value  
     end
 }):AddColorPicker('ESPTextColor', {
     Default = espSettings.TextColor,  
@@ -373,6 +373,14 @@ EspSettingsGroup:AddToggle('ESPNames', {
         espSettings.TextColor = Value
     end
 })  
+
+EspSettingsGroup:AddToggle('ESPDistance', {
+    Text = '显示距离',
+    Default = espSettings.Distance,
+    Callback = function(value)
+        espSettings.Distance = value
+    end
+})
 
 EspSettingsGroup:AddToggle('ESPHealthBar', {
     Text = '显示血条',
@@ -412,8 +420,6 @@ AdvancedEspGroup:AddSlider('ESPMaxDistance', {
     end
 })
 
-
-
 AdvancedEspGroup:AddSlider('ESPTextSize', {
     Text = '文本大小',
     Default = espSettings.TextSize,
@@ -445,7 +451,6 @@ AdvancedEspGroup:AddDropdown('ESPTracerOrigin', {
     end
 })
 
-
 ThemeManager:SetLibrary(Library)
 SaveManager:SetLibrary(Library)
 
@@ -464,6 +469,6 @@ Library:SetWatermark('ESP')
 
 Library:OnUnload(function()
     clearEsp()
-    print('idk')
+    print('已卸载！')
     Library.Unloaded = true
 end)

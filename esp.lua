@@ -10,7 +10,7 @@ local Toggles = Library.Toggles
 
 
 local Window = Library:CreateWindow({
-    Title = 'ESP 菜单',
+    Title = 'ESPBYCCA',
     Center = true,
     AutoShow = true,
 })

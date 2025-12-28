@@ -1028,31 +1028,36 @@ Library.Watermark = function(self, Text, Icon)
             end
         end
     end
-    
-    function Watermark:UpdateStats(fps, ping)
+
+    function Watermark:UpdateStats(fps)
         if Items["Text"] and Items["Text"].Instance then
-            Items["Text"].Instance.Text = string.format("%s FPS: %d | Ping: %d", Text, fps or 0, ping or 0)
+            Items["Text"].Instance.Text = string.format("%s fps: %d", Text, fps or 0)
         end
     end
 
+    -- 添加设置可见性的方法
     function Watermark:SetVisibility(Bool)
         Items["Watermark"].Instance.Visible = Bool
     end
 
+    -- 添加设置主文本的方法
     function Watermark:SetText(NewText)
         if Items["Text"] and Items["Text"].Instance then
             Items["Text"].Instance.Text = NewText
         end
     end
 
+    -- 添加获取水印位置的方法
     function Watermark:GetPosition()
         return Items["Watermark"].Instance.Position
     end
 
+    -- 添加设置水印位置的方法
     function Watermark:SetPosition(Position)
         Items["Watermark"].Instance.Position = Position
     end
 
+    -- 添加销毁水印的方法
     function Watermark:Destroy()
         for _, item in pairs(Items) do
             if item and item.Instance then
